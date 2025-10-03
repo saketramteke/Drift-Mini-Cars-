@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Drift Miniature Cars — Playground</title>
+  <meta name="description" content="A fun demo website for drifting miniature cars: gallery, shop, and a mini drift simulator." />
+  <style>
+    :root{
+      --bg:#0f1724; --card:#0b1220; --accent:#ff6b6b; --muted:#9aa7b2; --glass: rgba(255,255,255,0.03);
+      --radius:12px; --maxw:1100px;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,#071022 0%, #081427 60%);color:#e6f0f2;display:flex;justify-content:center;padding:32px}
+    .wrap{width:100%;max-width:var(--maxw)}
+
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#ffb86b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#111}
+    nav a{color:var(--muted);text-decoration:none;margin-left:18px}
+    nav a:hover{color:#fff}
+
+    .hero{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));padding:24px;border-radius:16px;display:grid;grid-template-columns:1fr 420px;gap:18px;align-items:center}
+    .hero h1{margin:0;font-size:28px}
+    .hero p{color:var(--muted);margin-top:8px}
+    .cta{margin-top:14px}
+    .btn{display:inline-block;padding:10px 16px;border-radius:10px;background:var(--accent);color:#111;font-weight:600;border:0;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
+
+    /* Card grid */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+    .card{background:var(--card);padding:12px;border-radius:12px}
+    .product img{width:100%;height:140px;object-fit:cover;border-radius:10px;background:linear-gradient(90deg,#123 0%, #345 100%)}
+    .product h3{margin:8px 0 4px}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* Gallery */
+    .gallery{display:flex;gap:10px;flex-wrap:wrap}
+    .gcell{width:calc(33.333% - 8px);min-width:140px;border-radius:10px;padding:12px;background:var(--glass);text-align:center}
+
+    /* Simulator */
+    .sim-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.06));padding:12px;border-radius:12px}
+    #simCanvas{width:100%;height:320px;background:#081222;border-radius:8px;display:block}
+    .controls{display:flex;gap:8px;margin-top:8px;align-items:center}
+    .kbd{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.02)}
+
+    /* Cart */
+    .cart-btn{position:relative}
+    .badge{position:absolute;top:-8px;right:-8px;background:#ffcc00;color:#081;min-width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+
+    footer{color:var(--muted);text-align:center;margin-top:18px}
+
+    /* Responsive */
+    @media (max-width:980px){.hero{grid-template-columns:1fr} .grid{grid-template-columns:repeat(2,1fr)} .gcell{width:calc(50% - 8px)} }
+    @media (max-width:560px){.grid{grid-template-columns:1fr}.gcell{width:100%} nav a{display:none}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">DM</div>
+        <div>
+          <div style="font-weight:700">Drift Miniature</div>
+          <div style="font-size:12px;color:var(--muted)">Skid. Slide. Smile.</div>
+        </div>
+      </div>
+      <nav>
+        <a href="#gallery">Gallery</a>
+        <a href="#shop">Shop</a>
+        <a href="#sim">Simulator</a>
+        <button class="btn cart-btn" id="openCart">Cart <span class="badge" id="cartCount">0</span></button>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Drift miniature cars — Playground & shop</h1>
+        <p>Explore our curated mini drift cars, tune setups, and practice drifting in the built-in simulator. No downloads — everything runs in your browser.</p>
+        <div class="cta">
+          <button class="btn" onclick="scrollToSection('sim')">Try Simulator</button>
+          <button class="btn ghost" onclick="scrollToSection('shop')">Browse Cars</button>
+        </div>
+
+        <div class="grid" style="margin-top:18px">
+          <div class="card product">
+            <div style="display:flex;gap:8px;align-items:center">
+              <svg width="72" height="48" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="8" y="30" rx="12" width="184" height="58" fill="url(#g)"/><circle cx="50" cy="94" r="10" fill="#111"/><circle cx="150" cy="94" r="10" fill="#111"/><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#ff6b6b"/><stop offset="1" stop-color="#ffb86b"/></linearGradient></defs></svg>
+              <div>
+                <h3>Starter Drift Set</h3>
+                <div class="muted">Perfect for beginners</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn" onclick="addToCart(1)">Add</button>
+              <button class="btn ghost" onclick="scrollToSection('shop')">Details</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Track-ready Chassis</h3>
+            <div class="muted">Lightweight & nimble</div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn" onclick="addToCart(2)">Add</button>
+              <button class="btn ghost" onclick="scrollToSection('shop')">Details</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Tuning Kit</h3>
+            <div class="muted">Adjust suspension & grip</div>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn" onclick="addToCart(3)">Add</button>
+              <button class="btn ghost" onclick="scrollToSection('shop')">Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sim-card">
+          <canvas id="simCanvas" width="800" height="480"></canvas>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <div class="controls">
+              <div class="muted">Controls:</div>
+              <div class="kbd">↑ / ↓ = Throttle / Brake</div>
+              <div class="kbd">← / → = Steer</div>
+              <div class="kbd">Space = Handbrake (drift)</div>
+            </div>
+            <div id="telemetry" class="muted">Speed: 0 | Angle: 0°</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery" style="margin-top:14px">
+      <h2>Gallery</h2>
+      <div class="gallery">
+        <div class="gcell">
+          <svg width="100%" height="80" viewBox="0 0 200 80"><rect x="10" y="18" rx="8" width="180" height="44" fill="#112233"/><circle cx="50" cy="60" r="8" fill="#000"/><circle cx="150" cy="60" r="8" fill="#000"/></svg>
+          <div class="muted">Sunset drift — compact</div>
+        </div>
+        <div class="gcell">
+          <svg width="100%" height="80" viewBox="0 0 200 80"><rect x="10" y="18" rx="8" width="180" height="44" fill="#223344"/><circle cx="58" cy="62" r="8" fill="#000"/><circle cx="142" cy="62" r="8" fill="#000"/></svg>
+          <div class="muted">Rally spec</div>
+        </div>
+        <div class="gcell">
+          <svg width="100%" height="80" viewBox="0 0 200 80"><rect x="10" y="18" rx="8" width="180" height="44" fill="#334455"/><circle cx="48" cy="60" r="8" fill="#000"/><circle cx="152" cy="60" r="8" fill="#000"/></svg>
+          <div class="muted">Drift queen</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="shop" style="margin-top:18px">
+      <h2>Shop</h2>
+      <div style="display:grid;grid-template-columns:1fr 320px;gap:12px;margin-top:12px">
+        <div>
+          <div class="grid" id="productsGrid">
+            <!-- products injected by JS -->
+          </div>
+        </div>
+        <aside style="position:relative">
+          <div class="sim-card">
+            <h3>Tune & Learn</h3>
+            <div class="muted">All parts ship worldwide. Add items to cart and check out (demo only).</div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn" onclick="checkout()">Checkout</button>
+              <button class="btn ghost" onclick="clearCart()">Clear Cart</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <footer>
+      <div>Made with ♥ for miniature car fans — demo site. Copy the file and open locally to try it.</div>
+    </footer>
+  </div>
+
+  <!-- Cart modal simple overlay -->
+  <div id="cartModal" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);">
+    <div style="width:420px;background:var(--card);padding:16px;border-radius:12px">
+      <h3>Your Cart</h3>
+      <div id="cartItems" style="max-height:260px;overflow:auto;margin-top:8px"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:12px;align-items:center">
+        <div class="muted" id="cartTotal">Total: ₹0</div>
+        <div>
+          <button class="btn" onclick="checkout()">Checkout</button>
+          <button class="btn ghost" onclick="closeCart()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Sample product data ---
+    const PRODUCTS = [
+      {id:1,name:'Starter Drift Set',price:1299,desc:'Beginner-friendly car and controller'},
+      {id:2,name:'Track-ready Chassis',price:2199,desc:'Lightweight aluminium chassis'},
+      {id:3,name:'Tuning Kit',price:699,desc:'Springs, pads and tuning tools'},
+      {id:4,name:'Pro Drift Body',price:1499,desc:'Low-friction body shell'},
+      {id:5,name:'Grip Tires (4)',price:499,desc:'High-grip rubber tires'},
+      {id:6,name:'Battery Pack',price:799,desc:'Long-life LiPo pack'}
+    ];
+
+    // Render products
+    const productsGrid = document.getElementById('productsGrid');
+    function renderProducts(){
+      productsGrid.innerHTML = PRODUCTS.map(p=>`
+        <div class="card product">
+          <div style="height:120px;display:flex;align-items:center;justify-content:center;background:linear-gradient(90deg,#07202b,#0a2740);border-radius:8px">
+            <svg width="160" height="80" viewBox="0 0 200 100"><rect x="10" y="30" rx="10" width="180" height="44" fill="#ff6b6b"/></svg>
+          </div>
+          <h3>${p.name}</h3>
+          <div class="muted">${p.desc}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <div style="font-weight:700">₹${p.price}</div>
+            <div>
+              <button class="btn" onclick="addToCart(${p.id})">Add</button>
+              <button class="btn ghost" onclick="viewDetails(${p.id})">View</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+    renderProducts();
+
+    // --- Simple cart ---
+    let cart = JSON.parse(localStorage.getItem('dm_cart')||'[]');
+    const cartCountEl = document.getElementById('cartCount');
+    function syncCartUI(){
+      cartCountEl.textContent = cart.reduce((s,i)=>s+i.qty,0);
+      localStorage.setItem('dm_cart', JSON.stringify(cart));
+    }
+    function addToCart(id){
+      const product = PRODUCTS.find(p=>p.id===id);
+      if(!product) return;
+      const existing = cart.find(c=>c.id===id);
+      if(existing) existing.qty++;
+      else cart.push({id:product.id,name:product.name,price:product.price,qty:1});
+      syncCartUI();
+      alert(product.name + ' added to cart');
+    }
+    function viewDetails(id){
+      const p = PRODUCTS.find(x=>x.id===id);
+      alert(p.name + '\n\n' + p.desc + '\n\nPrice: ₹' + p.price);
+    }
+    function openCart(){
+      renderCart();
+      document.getElementById('cartModal').style.display = 'flex';
+    }
+    function closeCart(){document.getElementById('cartModal').style.display='none'}
+    function renderCart(){
+      const el = document.getElementById('cartItems');
+      if(cart.length===0){ el.innerHTML = '<div class="muted">Your cart is empty</div>'; document.getElementById('cartTotal').textContent='Total: ₹0'; return }
+      el.innerHTML = cart.map(it=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.03)">${it.name} <span class="muted">₹${it.price} x ${it.qty}</span> <button class="btn" onclick="changeQty(${it.id},1)">+</button> <button class="btn ghost" onclick="changeQty(${it.id},-1)">-</button></div>`).join('');
+      const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+      document.getElementById('cartTotal').textContent = 'Total: ₹' + total;
+    }
+    function changeQty(id,delta){
+      const idx = cart.findIndex(c=>c.id===id);
+      if(idx===-1) return;
+      cart[idx].qty += delta;
+      if(cart[idx].qty<=0) cart.splice(idx,1);
+      syncCartUI();
+      renderCart();
+    }
+    function clearCart(){ cart = []; syncCartUI(); alert('Cart cleared'); }
+    function checkout(){ if(cart.length===0) { alert('Cart is empty'); return } alert('Demo checkout — thanks! Total: ₹' + cart.reduce((s,i)=>s+i.price*i.qty,0)); cart=[]; syncCartUI(); closeCart(); }
+    document.getElementById('openCart').addEventListener('click',openCart);
+    syncCartUI();
+
+    // --- Utilities ---
+    function scrollToSection(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+
+    // --- Simple 2D Drift Simulator ---
+    const canvas = document.getElementById('simCanvas');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width, H = canvas.height;
+
+    // Car state
+    const car = {
+      x: W/2, y: H/2, angle:0, speed:0, steer:0,
+      width:40, length:70,
+      maxSpeed:6, accel:0.12, brake:0.3, steerSpeed:0.03,
+      drift:false
+    };
+
+    const keys = {up:false,down:false,left:false,right:false,hand:false};
+
+    window.addEventListener('keydown',e=>{
+      if(e.code==='ArrowUp') keys.up=true;
+      if(e.code==='ArrowDown') keys.down=true;
+      if(e.code==='ArrowLeft') keys.left=true;
+      if(e.code==='ArrowRight') keys.right=true;
+      if(e.code==='Space'){ keys.hand=true; e.preventDefault(); }
+    });
+    window.addEventListener('keyup',e=>{
+      if(e.code==='ArrowUp') keys.up=false;
+      if(e.code==='ArrowDown') keys.down=false;
+      if(e.code==='ArrowLeft') keys.left=false;
+      if(e.code==='ArrowRight') keys.right=false;
+      if(e.code==='Space') keys.hand=false;
+    });
+
+    function updateSim(){
+      // throttle
+      if(keys.up){ car.speed += car.accel; }
+      else car.speed -= 0.02; // natural drag
+      if(keys.down) car.speed -= car.brake;
+
+      // clamp speed
+      if(car.speed > car.maxSpeed) car.speed = car.maxSpeed;
+      if(car.speed < -2) car.speed = -2;
+      if(Math.abs(car.speed) < 0.02) car.speed = 0;
+
+      // steering
+      let steerInput = 0;
+      if(keys.left) steerInput = -1;
+      if(keys.right) steerInput = 1;
+
+      // handbrake toggles drift multiplier
+      car.drift = keys.hand;
+      const driftFactor = car.drift ? 0.6 : 0.95; // lower => more sideways motion
+
+      // steering effect scales with speed
+      car.angle += steerInput * car.steerSpeed * (car.speed/2);
+
+      // velocity vector
+      const vx = Math.cos(car.angle) * car.speed;
+      const vy = Math.sin(car.angle) * car.speed;
+
+      // sideways slip — simplified: move some perpendicular component when drifting
+      const sideSlip = car.drift ? Math.sign(steerInput || 1) * Math.abs(car.speed) * 0.6 : 0;
+      car.x += vx + Math.cos(car.angle + Math.PI/2) * sideSlip * 0.3;
+      car.y += vy + Math.sin(car.angle + Math.PI/2) * sideSlip * 0.3;
+
+      // keep on canvas
+      if(car.x < 20) car.x = 20; if(car.x > W-20) car.x = W-20;
+      if(car.y < 20) car.y = 20; if(car.y > H-20) car.y = H-20;
+
+      // small speed decay
+      car.speed *= 0.995;
+
+      document.getElementById('telemetry').textContent = 'Speed: ' + (Math.abs(car.speed).toFixed(2)) + ' | Angle: ' + Math.round(car.angle* (180/Math.PI)) + '°' + (car.drift ? ' | DRIFT' : '');
+    }
+
+    function drawCar(){
+      ctx.save();
+      ctx.translate(car.x,car.y);
+      ctx.rotate(car.angle);
+
+      // shadow
+      ctx.fillStyle='rgba(0,0,0,0.35)';
+      ctx.fillRect(-car.length/2 + 6, -car.width/2 + 10, car.length-12, car.width-8);
+
+      // body
+      ctx.fillStyle = '#ff6b6b';
+      ctx.fillRect(-car.length/2, -car.width/2, car.length, car.width);
+
+      // windows
+      ctx.fillStyle='rgba(255,255,255,0.15)';
+      ctx.fillRect(-car.length/2 + 8, -car.width/2 + 6, car.length-24, car.width/3);
+
+      // wheels
+      ctx.fillStyle='#111';
+      const wheelOffsetY = car.width/2 + 6;
+      ctx.fillRect(-car.length/2 + 6, wheelOffsetY-8, 14,8);
+      ctx.fillRect(car.length/2 - 20, wheelOffsetY-8, 14,8);
+      ctx.fillRect(-car.length/2 + 6, -wheelOffsetY, 14,8);
+      ctx.fillRect(car.length/2 - 20, -wheelOffsetY, 14,8);
+
+      ctx.restore();
+    }
+
+    function drawTrack(){
+      // simple grid track
+      ctx.fillStyle='#081222';
+      ctx.fillRect(0,0,W,H);
+
+      ctx.strokeStyle='rgba(255,255,255,0.02)';
+      ctx.lineWidth=1;
+      for(let x=0;x<W;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+      for(let y=0;y<H;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+      // skid marks when drifting (simple)
+      if(car.drift && Math.abs(car.speed)>0.7){
+        ctx.save();
+        ctx.translate(car.x,car.y);
+        ctx.rotate(car.angle);
+        ctx.fillStyle='rgba(0,0,0,0.08)';
+        for(let i=0;i<6;i++){
+          ctx.fillRect(-car.length/2 - i*10, car.width/2 + 8 + i*2, 6,2);
+        }
+        ctx.restore();
+      }
+    }
+
+    function loop(){
+      updateSim();
+      drawTrack();
+      drawCar();
+      requestAnimationFrame(loop);
+    }
+    loop();
+
+    // Resize handling
+    window.addEventListener('resize',()=>{
+      // keep canvas internal size proportional to display size
+      W = canvas.width = Math.min(1000, Math.floor(window.innerWidth*0.8));
+      H = canvas.height = Math.min(540, Math.floor(window.innerHeight*0.5));
+    });
+
+    // init size
+    (function(){
+      W = canvas.width = Math.min(1000, Math.floor(window.innerWidth*0.8));
+      H = canvas.height = Math.min(540, Math.floor(window.innerHeight*0.5));
+    })();
+
+    // small niceties: keyboard hint on focus
+    canvas.addEventListener('click', ()=> canvas.focus());
+  </script>
+</body>
+</html>
